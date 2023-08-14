@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-var separator string = " | "
-var prettyArgs string = "%an" + separator + "%s" + separator + "%as"
+var sep string = " | "
+var prettyArgs string = "%h" + sep + "%an" + sep + "%s" + sep + "%as"
 
 func GetRawHistory(path string) []string {
 	c := exec.Command("git", "log", "--all", "--pretty="+prettyArgs)
@@ -27,16 +27,36 @@ func GetFormatedHistory(rawCommits []string, user string) []Commit {
 	return filterByUser(formatedCommits, user)
 }
 
+func GetFormatedEmoji(rawCommits []string, user string) []Commit {
+	formatedCommits := Map(rawCommits[:len(rawCommits)-1], formatCommit)
+	filteredCommits := filterByUser(formatedCommits, user)
+	test := Reduce(filteredCommits, joinByEmoji, []Commit{})
+
+	return test
+}
+
+func joinByEmoji(acc []Commit, cur Commit) []Commit {
+	for i, a := range acc {
+		if a.gitmoji == cur.gitmoji {
+			acc[i].occurence += 1
+			return acc
+		}
+	}
+	acc = append(acc, Commit{gitmoji: cur.gitmoji, occurence: 1})
+	return acc
+}
+
 func formatCommit(s string) Commit {
-	commit := strings.Split(s, separator)
-	kind, gitmoji, message := parseCommitMessage(commit[1])
+	commit := strings.Split(s, sep)
+	kind, gitmoji, message := parseCommitMessage(commit[2])
 
 	return Commit{
 		kind:    strings.TrimSpace(kind),
 		gitmoji: strings.TrimSpace(gitmoji),
+		sha:     strings.TrimSpace(commit[0]),
 		message: strings.TrimSpace(message),
-		author:  strings.TrimSpace(commit[0]),
-		date:    strings.TrimSpace(commit[2]),
+		author:  strings.TrimSpace(commit[1]),
+		date:    strings.TrimSpace(commit[3]),
 	}
 }
 

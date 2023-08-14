@@ -1,7 +1,5 @@
 package utils
 
-import "regexp"
-
 func Map[E, T any](s []E, f func(E) T) []T {
 	mapped := make([]T, len(s))
 	for i, x := range s {
@@ -11,11 +9,11 @@ func Map[E, T any](s []E, f func(E) T) []T {
 }
 
 func Reduce[E any, R any](s []E, f func(R, E) R, initial R) R {
-	result := initial
+	acc := initial
 	for _, v := range s {
-		result = f(result, v)
+		acc = f(acc, v)
 	}
-	return result
+	return acc
 }
 
 func Filter[E any](s []E, f func(E) bool) []E {
@@ -26,8 +24,4 @@ func Filter[E any](s []E, f func(E) bool) []E {
 		}
 	}
 	return filtered
-}
-
-func Regex(a string, b string) bool {
-	return regexp.MustCompile(a).FindString(b) != ""
 }

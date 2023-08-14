@@ -12,6 +12,7 @@ import (
 var (
 	repoPath string
 	user     string
+	sort     string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -37,8 +38,9 @@ func init() {
 	// will be global for your application.
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitmojidex.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&repoPath, "path", "p", "./", "Path of the git repository")
-	rootCmd.PersistentFlags().StringVarP(&user, "user", "u", "", "User for search filter with a regex pattern")
+	rootCmd.PersistentFlags().StringVarP(&repoPath, "path", "p", "./", "Path to the git repository.")
+	rootCmd.PersistentFlags().StringVarP(&user, "user", "u", "", "User for search filter with a regex pattern.")
+	rootCmd.PersistentFlags().StringVarP(&sort, "sort", "s", "asc", "Sort commits by date 'asc' or 'dsc'.")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

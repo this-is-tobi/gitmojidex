@@ -15,19 +15,16 @@ var historyCmd = &cobra.Command{
 	Use:   "history",
 	Short: "Get repository history.",
 	Run: func(cmd *cobra.Command, args []string) {
-		path, err := cmd.Flags().GetString("path")
+		argPath, err := cmd.Flags().GetString("path")
+		argUser, err := cmd.Flags().GetString("user")
+		argSort, err := cmd.Flags().GetString("sort")
 		if err != nil {
-			fmt.Println("Error while getting 'path' flag", err)
+			fmt.Println("Error while getting arg :", err)
 		}
 
-		user, err := cmd.Flags().GetString("user")
-		if err != nil {
-			fmt.Println("Error while getting 'user' flag", err)
-		}
-
-		rawCommits := utils.GetRawHistory(path)
-		commits := utils.GetFormatedHistory(rawCommits, user)
-		utils.TableHistory(commits)
+		rawCommits := utils.GetRawHistory(argPath)
+		commits := utils.GetFormatedHistory(rawCommits, argUser)
+		utils.TableHistory(commits, argSort)
 	},
 }
 
