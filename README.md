@@ -1,3 +1,3 @@
 # Gitmojidex :mag:
 
-CLI tool to get statistics about a git repository.
+Interactive CLI tool to get statistics about a git repository.
