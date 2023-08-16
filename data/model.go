@@ -1,9 +1,9 @@
-package utils
+package data
 
 type Commit struct {
 	sha     string
 	kind    string
-	gitmoji string
+	emoji   string
 	author  string
 	message string
 	date    string
@@ -14,3 +14,9 @@ type Gitmoji struct {
 	commits   []Commit
 	occurence int
 }
+
+var (
+	History  []Commit
+	Gitmojis []Gitmoji
+	Commits  []Commit
+)

@@ -4,12 +4,15 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
-	"github.com/this-is-tobi/gitmojidex/table"
+	"github.com/this-is-tobi/gitmojidex/view"
+)
+
+var (
+	repoPath string
+	user     string
 )
 
 var rootCmd = &cobra.Command{
@@ -28,28 +31,12 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVarP(&repoPath, "path", "p", "./", "Path to the git repository.")
+	rootCmd.PersistentFlags().StringVarP(&user, "user", "u", "", "User for search filter with a regex pattern.")
 }
 
 func main(cmd *cobra.Command, args []string) {
-	renderHistory()
-	renderEmoji()
-}
-func renderHistory() {
-
-	cols, rows := table.GetTableData("history")
-	m := table.CreateTable(cols, rows)
-	if _, err := tea.NewProgram(m).Run(); err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
-	}
-}
-
-func renderEmoji() {
-	cols, rows := table.GetTableData("emoji")
-	m := table.CreateTable(cols, rows)
-	if _, err := tea.NewProgram(m).Run(); err != nil {
-		fmt.Sprintln("Error running program:", err)
-		os.Exit(1)
-	}
+	// 1. Fetch Git
+	// 2. Render view with Data
+	view.Render(repoPath, user)
 }
