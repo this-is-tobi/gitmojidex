@@ -4,27 +4,29 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/charmbracelet/bubbles/table"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/this-is-tobi/gitmojidex/data"
 	"github.com/this-is-tobi/gitmojidex/utils"
 )
 
-// sessionState is used to track which model is focused
-type sessionState uint
+func Render(repoPath string, user string) {
+	pathInput := newInput("repo path", true)
+	pathInput.SetValue(repoPath)
+	userInput := newInput("username", false)
+	gitmojiTable := newTable(gCols, utils.Map(data.Gitmojis, data.GitmojiToRow), 19)
+	commitTable := newTable(cCols, utils.Map(data.Commits, data.CommitToRow), 25)
 
-const (
-	pathView sessionState = iota
-	userView
-	commitsView
-	gitmojisView
-)
+	m := newModel(pathInput, userInput, gitmojiTable, commitTable)
+	p := tea.NewProgram(m)
+
+	if _, err := p.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
 
 func (m model) Init() tea.Cmd {
-	return textinput.Blink
-	// return nil
+	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -36,36 +38,46 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "tab":
-			if m.state == pathView {
-				m.state = userView
-			} else if m.state == userView {
-				m.state = gitmojisView
-			} else if m.state == gitmojisView {
-				m.state = commitsView
-			} else if m.state == commitsView {
+			if m.state == commitsView {
 				m.state = pathView
+			} else {
+				m.state++
+			}
+		case "shift+tab":
+			if m.state == pathView {
+				m.state = commitsView
+			} else {
+				m.state--
 			}
 		case "enter":
-			data.FilterHistory("stan")
-			gRows := utils.Map(data.Gitmojis, data.GitmojiToRow)
-			cRows := utils.Map(data.Commits, data.CommitToRow)
-			m.gitmojiTable.SetRows(gRows)
-			m.commitTable.SetRows(cRows)
-			m.userInput.SetValue("stan")
-			// gitmojiTable := newTable(gCols, gRows)
-			// commitTable := newTable(hCols, cRows)
-			// userInput := newInput("stan")
-			// m = newModel(gitmojiTable, commitTable, userInput)
+			if m.state == pathView {
+				data.FetchHistory(m.pathInput.Value())
+			} else if m.state == userView {
+				data.FilterHistory(m.userInput.Value())
+			}
+			m.gitmojiTable.SetRows(utils.Map(data.Gitmojis, data.GitmojiToRow))
+			m.commitTable.SetRows(utils.Map(data.Commits, data.CommitToRow))
 		}
 		switch m.state {
+		case pathView:
+			m.pathInput.Focus()
+			m.userInput.Blur()
+			m.pathInput, cmd = m.pathInput.Update(msg)
+			cmds = append(cmds, cmd)
+		case userView:
+			m.pathInput.Blur()
+			m.userInput.Focus()
+			m.userInput, cmd = m.userInput.Update(msg)
+			cmds = append(cmds, cmd)
 		case commitsView:
+			m.pathInput.Blur()
+			m.userInput.Blur()
 			m.commitTable, cmd = m.commitTable.Update(msg)
 			cmds = append(cmds, cmd)
 		case gitmojisView:
+			m.pathInput.Blur()
+			m.userInput.Blur()
 			m.gitmojiTable, cmd = m.gitmojiTable.Update(msg)
-			cmds = append(cmds, cmd)
-		case userView:
-			m.userInput, cmd = m.userInput.Update(msg)
 			cmds = append(cmds, cmd)
 		}
 	}
@@ -73,55 +85,26 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	var (
-		s  string
-		pr string
-		ur string
-		gr string
-		cr string
-	)
-	if m.state == pathView {
-		pr = focus(inputStyle).Render(m.pathInput.View())
-		ur = unfocus(inputStyle).Render(m.userInput.View())
-		gr = unfocus(tableGitmojiStyle).Render(m.gitmojiTable.View())
-		cr = unfocus(tableCommitStyle).Render(m.commitTable.View())
-	} else if m.state == userView {
-		pr = unfocus(inputStyle).Render(m.pathInput.View())
-		ur = focus(inputStyle).Render(m.userInput.View())
-		gr = unfocus(tableGitmojiStyle).Render(m.gitmojiTable.View())
-		cr = unfocus(tableCommitStyle).Render(m.commitTable.View())
-	} else if m.state == gitmojisView {
-		pr = unfocus(inputStyle).Render(m.pathInput.View())
-		ur = unfocus(inputStyle).Render(m.userInput.View())
-		gr = focus(tableGitmojiStyle).Render(m.gitmojiTable.View())
-		cr = unfocus(tableCommitStyle).Render(m.commitTable.View())
-	} else if m.state == commitsView {
-		pr = unfocus(inputStyle).Render(m.pathInput.View())
-		ur = unfocus(inputStyle).Render(m.userInput.View())
-		gr = unfocus(tableGitmojiStyle).Render(m.gitmojiTable.View())
-		cr = focus(tableCommitStyle).Render(m.commitTable.View())
-	}
+	var s string
+	pr, ur, gr, cr := updateFocus(m)
 	s += lipgloss.JoinHorizontal(lipgloss.Top, lipgloss.JoinVertical(lipgloss.Top, pr, ur, gr), cr)
-	s += helpStyle.Render(fmt.Sprintln("\ntab: focus next • enter: search focused input • q: exit"))
+	s += helpStyle.Render(fmt.Sprintln("\ntab: focus next • enter: search for the focused input • q: exit"))
 	return s
 }
 
-func Render(repoPath string, user string) {
-	pathInput := newInput("repo path")
-	userInput := newInput("username")
-	data.FetchHistory("./")
-	gitmojiTable, commitTable := renderTables(data.Gitmojis, data.Commits)
-
-	m := newModel(pathInput, userInput, gitmojiTable, commitTable)
-	p := tea.NewProgram(m)
-
-	if _, err := p.Run(); err != nil {
-		log.Fatal(err)
+func updateFocus(m model) (string, string, string, string) {
+	pr := focus(inputStyle, false).Render(m.pathInput.View())
+	ur := focus(inputStyle, false).Render(m.userInput.View())
+	gr := focus(tableGitmojiStyle, false).Render(m.gitmojiTable.View())
+	cr := focus(tableCommitStyle, false).Render(m.commitTable.View())
+	if m.state == pathView {
+		pr = focus(inputStyle, true).Render(m.pathInput.View())
+	} else if m.state == userView {
+		ur = focus(inputStyle, true).Render(m.userInput.View())
+	} else if m.state == gitmojisView {
+		gr = focus(tableGitmojiStyle, true).Render(m.gitmojiTable.View())
+	} else if m.state == commitsView {
+		cr = focus(tableCommitStyle, true).Render(m.commitTable.View())
 	}
-}
-
-func renderTables(g []data.Gitmoji, h []data.Commit) (table.Model, table.Model) {
-	gRows := utils.Map(g, data.GitmojiToRow)
-	hRows := utils.Map(h, data.CommitToRow)
-	return newTable(gCols, gRows), newTable(hCols, hRows)
+	return pr, ur, gr, cr
 }

@@ -7,10 +7,10 @@ import (
 
 var (
 	gCols []table.Column = []table.Column{
-		{Title: "Emoji", Width: 18},
-		{Title: "Occurence", Width: 18},
+		{Title: "Emoji", Width: 15},
+		{Title: "Occurence", Width: 15},
 	}
-	hCols []table.Column = []table.Column{
+	cCols []table.Column = []table.Column{
 		{Title: "SHA", Width: 10},
 		{Title: "Scope", Width: 8},
 		{Title: "Emoji", Width: 9},
@@ -20,16 +20,19 @@ var (
 	}
 )
 
-func newTable(cols []table.Column, rows []table.Row) table.Model {
+func newTable(cols []table.Column, rows []table.Row, height int) table.Model {
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithRows(rows),
 		table.WithFocused(true),
+		table.WithHeight(height),
 	)
 
 	s := table.DefaultStyles()
 	s.Header = s.Header.
 		BorderStyle(lipgloss.NormalBorder()).
+		Align(lipgloss.Top).
+		AlignVertical(lipgloss.Top).
 		BorderForeground(lipgloss.Color("240")).
 		BorderBottom(true).
 		Bold(false)

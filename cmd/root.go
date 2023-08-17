@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/this-is-tobi/gitmojidex/data"
 	"github.com/this-is-tobi/gitmojidex/view"
 )
 
@@ -36,7 +37,6 @@ func init() {
 }
 
 func main(cmd *cobra.Command, args []string) {
-	// 1. Fetch Git
-	// 2. Render view with Data
+	data.FetchHistory("./")
 	view.Render(repoPath, user)
 }

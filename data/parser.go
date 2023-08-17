@@ -23,13 +23,13 @@ func FetchHistory(path string) {
 	}
 	rawCommits := strings.Split(string(out), "\n")
 	History = utils.Map(rawCommits[:len(rawCommits)-1], formatCommit)
-	Gitmojis = utils.Reduce(History, joinByEmoji, []Gitmoji{})
+	Gitmojis = sortByEmoji(utils.Reduce(History, joinByEmoji, []Gitmoji{}))
 	Commits = History
 }
 
 func FilterHistory(user string) {
 	Commits = FilterByUser(History, user)
-	Gitmojis = utils.Reduce(Commits, joinByEmoji, []Gitmoji{})
+	Gitmojis = sortByEmoji(utils.Reduce(Commits, joinByEmoji, []Gitmoji{}))
 }
 
 func formatCommit(s string) Commit {
@@ -48,26 +48,26 @@ func formatCommit(s string) Commit {
 func parseCC(input string) (string, string, string) {
 	var kind string
 	var emoji string
-	kindIndexes := regexp.MustCompile(`[a-zA-Z_]*:`).FindStringIndex(input)
-	emojiIndexes := regexp.MustCompile(`:[a-zA-Z_]*:`).FindStringIndex(input)
-	if len(kindIndexes) > 0 {
-		kind = input[kindIndexes[0] : kindIndexes[1]-1]
+	kindIds := regexp.MustCompile(`[a-zA-Z_]*:`).FindStringIndex(input)
+	emojiIds := regexp.MustCompile(`:[a-zA-Z_]*:`).FindStringIndex(input)
+	if len(kindIds) > 0 {
+		kind = input[kindIds[0] : kindIds[1]-1]
 	} else {
 		kind = ""
 	}
-	if len(emojiIndexes) > 0 {
-		emoji = input[emojiIndexes[0]:emojiIndexes[1]]
+	if len(emojiIds) > 0 {
+		emoji = input[emojiIds[0]:emojiIds[1]]
 	} else {
 		emoji = ""
 	}
-	indexes := append(kindIndexes, emojiIndexes...)
-	if len(indexes) > 0 {
-		for j := 1; j < len(indexes); j++ {
-			if indexes[0] < indexes[j] {
-				indexes[0] = indexes[j]
+	ids := append(kindIds, emojiIds...)
+	if len(ids) > 0 {
+		for j := 1; j < len(ids); j++ {
+			if ids[0] < ids[j] {
+				ids[0] = ids[j]
 			}
 		}
-		input = input[indexes[0]:]
+		input = input[ids[0]:]
 	}
 	return kind, emoji, input
 }

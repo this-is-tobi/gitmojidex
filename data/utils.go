@@ -2,17 +2,18 @@ package data
 
 import (
 	"regexp"
+	"sort"
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/table"
-	"github.com/enescakir/emoji"
+	"github.com/kyokomi/emoji/v2"
 )
 
 func CommitToRow(commit Commit) table.Row {
 	return table.Row{
 		commit.sha,
 		commit.kind,
-		emoji.Parse(commit.emoji),
+		emoji.Emojize(commit.emoji),
 		commit.message,
 		commit.author,
 		commit.date,
@@ -21,14 +22,14 @@ func CommitToRow(commit Commit) table.Row {
 
 func GitmojiToRow(gitmoji Gitmoji) table.Row {
 	return table.Row{
-		emoji.Parse(gitmoji.emoji),
+		emoji.Emojize(gitmoji.emoji),
 		strconv.Itoa(gitmoji.occurence),
 	}
 }
 
-func FilterByUser(h []Commit, user string) []Commit {
+func FilterByUser(c []Commit, user string) []Commit {
 	var filteredCommits []Commit
-	for _, c := range h {
+	for _, c := range c {
 		if c == (Commit{}) {
 			continue
 		}
@@ -40,13 +41,22 @@ func FilterByUser(h []Commit, user string) []Commit {
 }
 
 func joinByEmoji(acc []Gitmoji, cur Commit) []Gitmoji {
-	for i, a := range acc {
-		if a.emoji == cur.emoji {
+	for i, g := range acc {
+		if g.emoji == cur.emoji {
 			acc[i].commits = append(acc[i].commits, cur)
 			acc[i].occurence += 1
 			return acc
 		}
 	}
-	acc = append(acc, Gitmoji{emoji: cur.emoji, commits: []Commit{cur}, occurence: 1})
+	if cur.emoji != "" {
+		acc = append(acc, Gitmoji{emoji: cur.emoji, commits: []Commit{cur}, occurence: 1})
+	}
 	return acc
+}
+
+func sortByEmoji(gitmojis []Gitmoji) []Gitmoji {
+	sort.Slice(gitmojis, func(i, j int) bool {
+		return gitmojis[i].occurence > gitmojis[j].occurence
+	})
+	return gitmojis
 }

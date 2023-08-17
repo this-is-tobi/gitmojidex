@@ -5,6 +5,16 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 )
 
+// sessionState is used to track which model is focused
+type sessionState uint
+
+const (
+	pathView sessionState = iota
+	userView
+	gitmojisView
+	commitsView
+)
+
 type model struct {
 	state        sessionState
 	gitmojiTable table.Model
@@ -17,7 +27,7 @@ func newModel(path textinput.Model, user textinput.Model, gitmojis table.Model, 
 	m := model{state: pathView}
 	m.pathInput = path
 	m.userInput = user
-	m.gitmojiTable = gitmojis // table.New()
-	m.commitTable = commits   // table.New()
+	m.gitmojiTable = gitmojis
+	m.commitTable = commits
 	return m
 }
