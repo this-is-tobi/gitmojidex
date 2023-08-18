@@ -1,4 +1,4 @@
-package data
+package git
 
 import (
 	"regexp"
@@ -9,7 +9,7 @@ import (
 	"github.com/kyokomi/emoji/v2"
 )
 
-func CommitToRow(commit Commit) table.Row {
+func CommitToRow(commit Commit, _ int) table.Row {
 	return table.Row{
 		commit.sha,
 		commit.kind,
@@ -20,7 +20,7 @@ func CommitToRow(commit Commit) table.Row {
 	}
 }
 
-func GitmojiToRow(gitmoji Gitmoji) table.Row {
+func GitmojiToRow(gitmoji Gitmoji, _ int) table.Row {
 	return table.Row{
 		emoji.Emojize(gitmoji.emoji),
 		strconv.Itoa(gitmoji.occurence),
@@ -40,7 +40,7 @@ func FilterByUser(c []Commit, user string) []Commit {
 	return filteredCommits
 }
 
-func joinByEmoji(acc []Gitmoji, cur Commit) []Gitmoji {
+func joinByEmoji(acc []Gitmoji, cur Commit, _ int) []Gitmoji {
 	for i, g := range acc {
 		if g.emoji == cur.emoji {
 			acc[i].commits = append(acc[i].commits, cur)

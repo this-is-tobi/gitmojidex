@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/charmbracelet/lipgloss v0.7.1
+	github.com/samber/lo v1.38.1
 	github.com/spf13/cobra v1.7.0
 )
 
@@ -18,6 +19,7 @@ require (
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.1 // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/term v0.6.0 // indirect
 	golang.org/x/text v0.3.8 // indirect

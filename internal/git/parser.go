@@ -1,4 +1,4 @@
-package data
+package git
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/this-is-tobi/gitmojidex/utils"
+	"github.com/samber/lo"
 )
 
 var (
@@ -22,17 +22,17 @@ func FetchHistory(path string) {
 		fmt.Println("could not run command: ", err)
 	}
 	rawCommits := strings.Split(string(out), "\n")
-	History = utils.Map(rawCommits[:len(rawCommits)-1], formatCommit)
-	Gitmojis = sortByEmoji(utils.Reduce(History, joinByEmoji, []Gitmoji{}))
+	History = lo.Map(rawCommits[:len(rawCommits)-1], formatCommit)
+	Gitmojis = sortByEmoji(lo.Reduce(History, joinByEmoji, []Gitmoji{}))
 	Commits = History
 }
 
 func FilterHistory(user string) {
 	Commits = FilterByUser(History, user)
-	Gitmojis = sortByEmoji(utils.Reduce(Commits, joinByEmoji, []Gitmoji{}))
+	Gitmojis = sortByEmoji(lo.Reduce(Commits, joinByEmoji, []Gitmoji{}))
 }
 
-func formatCommit(s string) Commit {
+func formatCommit(s string, _ int) Commit {
 	commit := strings.Split(s, sep)
 	kind, emoji, message := parseCC(commit[1])
 	return Commit{

@@ -1,4 +1,4 @@
-package data
+package git
 
 type Commit struct {
 	sha     string

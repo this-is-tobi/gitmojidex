@@ -33,12 +33,12 @@ func newTable(cols []table.Column, rows []table.Row, height int) table.Model {
 		BorderStyle(lipgloss.NormalBorder()).
 		Align(lipgloss.Top).
 		AlignVertical(lipgloss.Top).
-		BorderForeground(lipgloss.Color("240")).
+		BorderForeground(lipgloss.Color(secondaryColor)).
 		BorderBottom(true).
 		Bold(false)
 	s.Selected = s.Selected.
-		Background(lipgloss.Color("201")).
-		Bold(false)
+		Background(lipgloss.Color(mainColor)).
+		Bold(false).Foreground(lipgloss.Color("250"))
 
 	t.SetStyles(s)
 	return t

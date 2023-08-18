@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/this-is-tobi/gitmojidex/data"
-	"github.com/this-is-tobi/gitmojidex/view"
+	"github.com/this-is-tobi/gitmojidex/internal/git"
+	"github.com/this-is-tobi/gitmojidex/internal/view"
 )
 
 var (
@@ -37,6 +37,6 @@ func init() {
 }
 
 func main(cmd *cobra.Command, args []string) {
-	data.FetchHistory("./")
+	git.FetchHistory("./")
 	view.Render(repoPath, user)
 }

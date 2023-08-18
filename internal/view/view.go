@@ -6,18 +6,18 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/this-is-tobi/gitmojidex/data"
-	"github.com/this-is-tobi/gitmojidex/utils"
+	"github.com/samber/lo"
+	"github.com/this-is-tobi/gitmojidex/internal/git"
 )
 
 func Render(repoPath string, user string) {
 	pathInput := newInput("repo path", true)
 	pathInput.SetValue(repoPath)
 	userInput := newInput("username", false)
-	gitmojiTable := newTable(gCols, utils.Map(data.Gitmojis, data.GitmojiToRow), 19)
-	commitTable := newTable(cCols, utils.Map(data.Commits, data.CommitToRow), 25)
+	gitmojiTable := newTable(gCols, lo.Map(git.Gitmojis, git.GitmojiToRow), 19)
+	commitTable := newTable(cCols, lo.Map(git.Commits, git.CommitToRow), 25)
 
-	m := newModel(pathInput, userInput, gitmojiTable, commitTable)
+	m := newView(pathInput, userInput, gitmojiTable, commitTable)
 	p := tea.NewProgram(m)
 
 	if _, err := p.Run(); err != nil {
@@ -25,11 +25,11 @@ func Render(repoPath string, user string) {
 	}
 }
 
-func (m model) Init() tea.Cmd {
+func (m view) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m view) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
@@ -51,12 +51,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter":
 			if m.state == pathView {
-				data.FetchHistory(m.pathInput.Value())
+				git.FetchHistory(m.pathInput.Value())
 			} else if m.state == userView {
-				data.FilterHistory(m.userInput.Value())
+				git.FilterHistory(m.userInput.Value())
 			}
-			m.gitmojiTable.SetRows(utils.Map(data.Gitmojis, data.GitmojiToRow))
-			m.commitTable.SetRows(utils.Map(data.Commits, data.CommitToRow))
+			m.gitmojiTable.SetRows(lo.Map(git.Gitmojis, git.GitmojiToRow))
+			m.commitTable.SetRows(lo.Map(git.Commits, git.CommitToRow))
 		}
 		switch m.state {
 		case pathView:
@@ -84,7 +84,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m view) View() string {
 	var s string
 	pr, ur, gr, cr := updateFocus(m)
 	s += lipgloss.JoinHorizontal(lipgloss.Top, lipgloss.JoinVertical(lipgloss.Top, pr, ur, gr), cr)
@@ -92,7 +92,7 @@ func (m model) View() string {
 	return s
 }
 
-func updateFocus(m model) (string, string, string, string) {
+func updateFocus(m view) (string, string, string, string) {
 	pr := focus(inputStyle, false).Render(m.pathInput.View())
 	ur := focus(inputStyle, false).Render(m.userInput.View())
 	gr := focus(tableGitmojiStyle, false).Render(m.gitmojiTable.View())
