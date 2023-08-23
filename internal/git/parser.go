@@ -16,7 +16,7 @@ var (
 
 func FetchHistory(path string) {
 	c := exec.Command("git", "log", "--all", "--pretty="+prettyArgs)
-	c.Dir = path
+	c.Dir = expandHome(path)
 	out, err := c.Output()
 	if err != nil {
 		fmt.Println("could not run command: ", err)

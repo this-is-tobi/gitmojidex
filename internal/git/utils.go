@@ -1,13 +1,29 @@
 package git
 
 import (
+	"os/user"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/kyokomi/emoji/v2"
 )
+
+func expandHome(p string) string {
+	usr, _ := user.Current()
+	homeDir := usr.HomeDir
+	if p == "~" || p == "$HOME" {
+		p = homeDir
+	} else if strings.HasPrefix(p, "~/") {
+		p = filepath.Join(homeDir, p[2:])
+	} else if strings.HasPrefix(p, "$HOME/") {
+		p = filepath.Join(homeDir, p[6:])
+	}
+	return p
+}
 
 func CommitToRow(commit Commit, _ int) table.Row {
 	return table.Row{
