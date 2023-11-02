@@ -1,6 +1,6 @@
 # Gitmojidex :mag:
 
-Interactive CLI tool to get statistics about a git repository.
+Interactive CLI tool to visualize gitmojis informations.
 It will parse git files for a given path to retrieve commit history and display them into the terminal.
 
 > *__Note:__ By default, it will try to parse the working directory.*
