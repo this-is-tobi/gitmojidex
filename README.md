@@ -3,6 +3,8 @@
 Interactive CLI tool to visualize gitmojis informations.
 It will parse git files for a given path to retrieve commit history and display them into the terminal.
 
+![demo](./docs/images/demo.png)
+
 > *__Note:__ By default, it will try to parse the working directory.*
 
 ## Development
