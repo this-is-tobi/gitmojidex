@@ -1,6 +1,6 @@
 # Gitmojidex :mag:
 
-Interactive CLI tool to visualize gitmojis informations.
+Interactive CLI tool built with [Bubbletea](https://github.com/charmbracelet/bubbletea) to visualize gitmojis informations.
 It will parse git files for a given path to retrieve commit history and display them into the terminal.
 
 ![demo](./docs/images/demo.png)
