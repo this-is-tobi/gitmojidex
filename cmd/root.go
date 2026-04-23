@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	repoPath string
-	user     string
+	repoPath  string
+	user      string
+	emojiless bool
 )
 
 var rootCmd = &cobra.Command{
@@ -34,9 +35,12 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&repoPath, "path", "p", "./", "Path to the git repository.")
 	rootCmd.PersistentFlags().StringVarP(&user, "user", "u", "", "User for search filter with a regex pattern.")
+	rootCmd.PersistentFlags().BoolVarP(&emojiless, "emojiless", "e", false, "Disable emoji rendering in the UI")
 }
 
 func main(cmd *cobra.Command, args []string) {
-	git.FetchHistory("./")
+	git.FetchHistory(repoPath)
+	// honor emojiless flag
+	git.ShowEmoji = !emojiless
 	view.Render(repoPath, user)
 }

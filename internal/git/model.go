@@ -19,4 +19,6 @@ var (
 	History  []Commit
 	Gitmojis []Gitmoji
 	Commits  []Commit
+	// ShowEmoji controls whether emoji are rendered in views.
+	ShowEmoji = true
 )

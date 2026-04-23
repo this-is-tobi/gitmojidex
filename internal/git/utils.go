@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/table"
-	// "github.com/kyokomi/emoji/v2"
+	"github.com/kyokomi/emoji/v2"
 )
 
 func expandHome(p string) string {
@@ -26,11 +26,16 @@ func expandHome(p string) string {
 }
 
 func CommitToRow(commit Commit, _ int) table.Row {
+	var e string
+	if ShowEmoji {
+		e = emoji.Emojize(commit.emoji)
+	} else {
+		e = commit.emoji
+	}
 	return table.Row{
 		commit.sha,
 		commit.kind,
-		// emoji.Emojize(commit.emoji),
-		commit.emoji,
+		e,
 		commit.message,
 		commit.author,
 		commit.date,
@@ -38,9 +43,14 @@ func CommitToRow(commit Commit, _ int) table.Row {
 }
 
 func GitmojiToRow(gitmoji Gitmoji, _ int) table.Row {
+	var e string
+	if ShowEmoji {
+		e = emoji.Emojize(gitmoji.emoji)
+	} else {
+		e = gitmoji.emoji
+	}
 	return table.Row{
-		// emoji.Emojize(gitmoji.emoji),
-		gitmoji.emoji,
+		e,
 		strconv.Itoa(gitmoji.occurence),
 	}
 }
